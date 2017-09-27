@@ -76,16 +76,16 @@ public class SearchHistory {
     public void save() {
         long success;
         ContentValues values;
-        historyCache.removeAll(previousHistory); // we remove previous searches - they have already been saved
         for (String term : historyCache) {
-            values = new ContentValues();
-            values.put(DictionaryOpenHelper.KEYS_COLUMN_NAME, DictionaryOpenHelper.KEY + ( counter++ ));
-            values.put(DictionaryOpenHelper.VALUES_COLUMN_NAME , term);
-            success = database.insert(DictionaryOpenHelper.TABLE_NAME, null, values);
-            if (success > -1) { // add item to previous history if db save was successful
-                // since we have already removed all values from history cache that are found in
-                // previous history, we do not need to check if the item is already there
-                previousHistory.add(term);
+            if (!previousHistory.contains(term)) { //check if the item has been saved before
+                values = new ContentValues();
+                values.put(DictionaryOpenHelper.KEYS_COLUMN_NAME, DictionaryOpenHelper.KEY + ( counter++ ));
+                values.put(DictionaryOpenHelper.VALUES_COLUMN_NAME , term);
+                success = database.insert(DictionaryOpenHelper.TABLE_NAME, null, values);
+                // add item to previous history if db save was successful
+                if (success > -1) {
+                    previousHistory.add(term);
+                }
             }
         }
     }
