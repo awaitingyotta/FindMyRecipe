@@ -1,3 +1,8 @@
 <resources>
-<dimen name="text_margin">16dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
+    <dimen name="button_width">150dp</dimen>
+    <dimen name="button_height">20dp</dimen>
+
+    <dimen name="search_icon_padding">12dp</dimen>
+    <dimen name="search_view_text_padding">65dp</dimen>
 </resources>

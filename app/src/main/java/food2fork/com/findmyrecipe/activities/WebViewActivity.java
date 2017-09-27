@@ -10,8 +10,11 @@ import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
 import food2fork.com.findmyrecipe.R;
-import food2fork.com.findmyrecipe.Utility;
+import food2fork.com.findmyrecipe.utils.Utility;
 
+/**
+ * @author Alexei Ivanov
+ */
 public class WebViewActivity extends BaseActivity {
     private WebView mInfoWebView;
     private ProgressBar mProgressBar;

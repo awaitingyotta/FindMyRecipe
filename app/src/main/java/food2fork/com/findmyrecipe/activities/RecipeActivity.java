@@ -1,25 +1,30 @@
 package food2fork.com.findmyrecipe.activities;
 
 import android.app.ProgressDialog;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import food2fork.com.findmyrecipe.R;
 import food2fork.com.findmyrecipe.Recipe;
-import food2fork.com.findmyrecipe.ServerUtility;
-import food2fork.com.findmyrecipe.Utility;
+import food2fork.com.findmyrecipe.utils.ServerUtility;
+import food2fork.com.findmyrecipe.utils.Utility;
 import food2fork.com.findmyrecipe.adapters.IngredientsListAdapter;
 import food2fork.com.findmyrecipe.exceptions.AppErrorException;
 import food2fork.com.findmyrecipe.exceptions.NetworkErrorException;
 import food2fork.com.findmyrecipe.exceptions.ServerFaultException;
 import food2fork.com.findmyrecipe.json.JsonRecipeDetails;
 
+/**
+ * @author Alexei Ivanov
+ */
 public class RecipeActivity extends BaseActivity {
 
     private RelativeLayout mButtonsAndInfoLayout;
@@ -60,7 +65,12 @@ public class RecipeActivity extends BaseActivity {
             showToast(R.string.recipe_error);
         } else {
             setTitle(recipe.getTitle());
-
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                View imageLayout = findViewById(R.id.recipe_image_layout);
+                imageLayout.setVisibility(View.GONE);
+//                LinearLayout main = (LinearLayout) findViewById(R.id.recipe_main_layout);
+//                main.setOrientation(LinearLayout.HORIZONTAL);
+            }
             mButtonsAndInfoLayout = (RelativeLayout) findViewById(R.id.recipe_buttons_layout);
 
             mViewInstructionsButton = (Button) findViewById(R.id.recipe_instructions_button);

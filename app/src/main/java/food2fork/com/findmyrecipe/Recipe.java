@@ -5,7 +5,12 @@ import android.widget.ImageView;
 import java.io.Serializable;
 
 import food2fork.com.findmyrecipe.adapters.RecipeListAdapter;
+import food2fork.com.findmyrecipe.utils.ServerUtility;
+import food2fork.com.findmyrecipe.utils.Utility;
 
+/**
+ * @author Alexei Ivanov
+ */
 public class Recipe implements Serializable {
 
     private static final long serialVersionUID = 1L;

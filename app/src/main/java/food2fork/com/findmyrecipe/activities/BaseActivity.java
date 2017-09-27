@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -18,7 +19,11 @@ import food2fork.com.findmyrecipe.R;
 import food2fork.com.findmyrecipe.exceptions.AppErrorException;
 import food2fork.com.findmyrecipe.exceptions.NetworkErrorException;
 import food2fork.com.findmyrecipe.exceptions.ServerFaultException;
+import food2fork.com.findmyrecipe.utils.Utility;
 
+/**
+ * @author Alexei Ivanov
+ */
 public class BaseActivity extends AppCompatActivity {
 
     private InputMethodManager mInputMethodManager;
@@ -40,9 +45,13 @@ public class BaseActivity extends AppCompatActivity {
         }
 
         mActionBar = getSupportActionBar();
-        if (mActionBar != null && this.getClass() != SearchActivity.class){
-            mActionBar.setHomeButtonEnabled(true);
-            mActionBar.setDisplayHomeAsUpEnabled(true);
+        if (mActionBar != null){
+//            mActionBar.setTitleTextColor(getResources().getColor(R.color.colorAccent, getTheme()));
+            mActionBar.setElevation(0);
+            if (this.getClass() != SearchActivity.class) {
+                mActionBar.setHomeButtonEnabled(true);
+                mActionBar.setDisplayHomeAsUpEnabled(true);
+            }
         }
 
     }
@@ -55,7 +64,7 @@ public class BaseActivity extends AppCompatActivity {
             mActionBar.setTitle(this.getTitle());
         }
         else {
-            mActionBar.setTitle(title);
+            mActionBar.setTitle(Utility.convertHtml(title.toString()));
         }
     }
 

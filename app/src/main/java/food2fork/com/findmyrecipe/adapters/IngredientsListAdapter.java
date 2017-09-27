@@ -12,6 +12,9 @@ import java.util.List;
 
 import food2fork.com.findmyrecipe.R;
 
+/**
+ * @author Alexei Ivanov
+ */
 public class IngredientsListAdapter extends BaseAdapter {
 
     private String[] ingredients;

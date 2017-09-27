@@ -1,9 +1,8 @@
 package food2fork.com.findmyrecipe.json;
 
 /**
- * Created by ai on 11.09.2017.
+ * @author Alexei Ivanov
  */
-
 public class JsonRecipeDetails extends BaseJson {
 
     private JsonRecipe recipe;

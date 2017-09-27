@@ -11,10 +11,13 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import food2fork.com.findmyrecipe.Recipe;
 import food2fork.com.findmyrecipe.R;
-import food2fork.com.findmyrecipe.Utility;
+import food2fork.com.findmyrecipe.Recipe;
+import food2fork.com.findmyrecipe.utils.Utility;
 
+/**
+ * @author Alexei Ivanov
+ */
 public class RecipeListAdapter extends BaseAdapter {
 
 
@@ -52,12 +55,12 @@ public class RecipeListAdapter extends BaseAdapter {
         holder.label = convertView.findViewById(R.id.recipes_list_recipe_label);
         holder.miniature = convertView.findViewById(R.id.recipes_list_recipe_icon);
 
-        holder.label.setText(recipes.get(position).getTitle());
+        holder.label.setText(Utility.convertHtml(recipes.get(position).getTitle()));
 
         if (Utility.getBitmapFromMemCache(recipes.get(position).getRecipeId()) != null) {
             holder.miniature.setImageBitmap(Utility.getBitmapFromMemCache(recipes.get(position).getRecipeId()));
         } else {
-            holder.miniature.setImageResource(R.drawable.ic_meal);
+            holder.miniature.setImageResource(R.drawable.no_image);
         }
 
 //        for (View view : holder.getViews()) {

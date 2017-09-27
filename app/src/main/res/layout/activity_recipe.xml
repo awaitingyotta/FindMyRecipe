@@ -8,11 +8,12 @@
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/recipe_main_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:weightSum="1"
         android:orientation="vertical"
-        android:background="@android:color/white"
+        android:background="@color/colorPrimaryLight"
         tools:context=".activities.RecipeActivity" >
 
         <LinearLayout
@@ -24,7 +25,7 @@
             android:padding="5dp"
             android:orientation="vertical"
             android:gravity="center_horizontal"
-            android:background="@android:color/white">
+            android:background="@color/colorPrimaryLight">
 
             <ImageView android:id="@+id/recipe_details_image"
                 android:layout_width="match_parent"
@@ -40,8 +41,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="top"
             android:padding="5dp"
-            android:background="@android:color/darker_gray"
-            android:textColor="@android:color/black"
+            android:background="@color/colorPrimaryDark"
+            android:textColor="@android:color/white"
             android:text="@string/recipe_ingredients_header"
             android:visibility="invisible"/>
 
@@ -54,7 +55,7 @@
             android:padding="5dp"
             android:orientation="vertical"
             android:gravity="center_horizontal"
-            android:background="@android:color/white">
+            android:background="@color/colorPrimaryLight">
 
             <ListView
                 android:id="@+id/recipe_ingredients_listview"
@@ -71,8 +72,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="top"
             android:padding="5dp"
-            android:background="@android:color/darker_gray"
-            android:textColor="@android:color/black"
+            android:background="@color/colorPrimaryDark"
+            android:textColor="@android:color/white"
             android:text="@string/recipe_info_header"
             android:visibility="invisible"/>
 
@@ -83,7 +84,7 @@
             android:layout_gravity="top"
             android:layout_weight="0.2"
             android:visibility="invisible"
-            android:background="@android:color/white">
+            android:background="@color/colorPrimaryLight">
 
             <Button android:id="@+id/recipe_instructions_button"
                 style="@style/appButtonStyle"
@@ -108,12 +109,11 @@
             <TextView android:id="@+id/recipe_info_publisher"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="5dp"
                 android:layout_alignBaseline="@+id/recipe_original_button"
                 android:textColor="@android:color/black"
-                android:background="@android:color/white"
+                android:background="@android:color/transparent"
                 android:textSize="6pt"
                 android:text="@string/dash" />
 
@@ -121,14 +121,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="5dp"
-                android:layout_centerInParent="true"
                 android:layout_alignParentEnd="true"
-                android:layout_alignBaseline="@+id/recipe_info_publisher"
+                android:layout_alignBaseline="@+id/recipe_original_button"
                 android:textColor="@android:color/black"
-                android:background="@android:color/white"
+                android:background="@android:color/transparent"
                 android:textSize="6pt"
                 android:text="@string/dash" />
 
         </RelativeLayout>
-    </LinearLayout>>
+    </LinearLayout>
 </ScrollView>

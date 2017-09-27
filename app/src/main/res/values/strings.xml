@@ -110,4 +110,6 @@
     <string name="dash">-</string>
     <string name="view_instructions">View instructions</string>
     <string name="view_original">View original</string>
+    <string name="empty_query">Please enter a search term</string>
+    <string name="search">Search</string>
 </resources>

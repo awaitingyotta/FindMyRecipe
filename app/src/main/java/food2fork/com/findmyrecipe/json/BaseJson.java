@@ -8,6 +8,9 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 
+/**
+ * @author Alexei Ivanov
+ */
 public class BaseJson {
 	private static ObjectMapper mapper = new ObjectMapper();
 

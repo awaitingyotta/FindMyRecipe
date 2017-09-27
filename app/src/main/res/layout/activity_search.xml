@@ -5,14 +5,35 @@
     android:id="@+id/activity_search"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/darker_gray"
+    android:background="@color/colorPrimaryLight"
     tools:context="food2fork.com.findmyrecipe.activities.SearchActivity">
 
     <ListView android:id="@+id/search_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
         android:divider="@null"
         android:dividerHeight="0dp"
-        android:background="@android:color/darker_gray"/>
+        android:background="@color/colorPrimaryLight"/>
+
+    <!-- Must be last for right layering display -->
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/toolbar_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:titleTextColor="@color/colorAccent"
+            android:background="@color/colorPrimary" />
+
+        <food2fork.com.findmyrecipe.MaterialSearchView
+            android:id="@+id/search_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </FrameLayout>
 
 </RelativeLayout>

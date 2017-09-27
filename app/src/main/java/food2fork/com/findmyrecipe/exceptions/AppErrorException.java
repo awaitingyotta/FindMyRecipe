@@ -1,7 +1,7 @@
 package food2fork.com.findmyrecipe.exceptions;
 
-/*
- * Representerer en exception som aldri skal forekomme, fordi det medf�rer at app'en har en bug.
+/**
+ * @author Alexei Ivanov
  */
 public class AppErrorException extends Exception {
 

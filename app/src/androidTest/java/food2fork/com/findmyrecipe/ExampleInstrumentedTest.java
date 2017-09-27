@@ -3,7 +3,6 @@ package food2fork.com.findmyrecipe;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
-import android.widget.ImageView;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +11,8 @@ import java.util.List;
 
 import food2fork.com.findmyrecipe.json.JsonRecipeDetails;
 import food2fork.com.findmyrecipe.json.JsonRecipeSearchResult;
+import food2fork.com.findmyrecipe.utils.ServerUtility;
+import food2fork.com.findmyrecipe.utils.Utility;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.*;

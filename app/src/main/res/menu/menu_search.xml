@@ -2,12 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:compat="http://schemas.android.com/apk/res-auto">
 
+    <!--<item-->
+        <!--android:id="@+id/menu_search"-->
+        <!--android:title="@string/search"-->
+        <!--compat:actionLayout="@layout/search_view"-->
+        <!--compat:showAsAction="ifRoom"-->
+        <!--android:icon="@drawable/ic_search"-->
+        <!--android:actionViewClass="android.widget.SearchView" />-->
     <item
-        android:id="@+id/menu_search"
-        android:title="Search"
-        compat:actionLayout="@layout/search_view"
-        compat:showAsAction="ifRoom"
-        android:icon="@drawable/ic_search"
-        />
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_action_action_search"
+        android:orderInCategory="100"
+        android:title="@string/search_hint"
+        compat:showAsAction="always" />
 
 </menu>

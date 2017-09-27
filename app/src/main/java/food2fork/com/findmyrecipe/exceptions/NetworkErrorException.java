@@ -1,7 +1,7 @@
 package food2fork.com.findmyrecipe.exceptions;
 
-/*
- * Representerer en feil fordi app ikke fikk kontakt med serveren.
+/**
+ * @author Alexei Ivanov
  */
 public class NetworkErrorException extends Exception {
 

@@ -2,39 +2,47 @@ package food2fork.com.findmyrecipe.activities;
 
 import android.app.ProgressDialog;
 import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.SearchView;
+import android.widget.RelativeLayout;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 
+import food2fork.com.findmyrecipe.MaterialSearchView;
 import food2fork.com.findmyrecipe.R;
 import food2fork.com.findmyrecipe.Recipe;
-import food2fork.com.findmyrecipe.ServerUtility;
-import food2fork.com.findmyrecipe.Utility;
+import food2fork.com.findmyrecipe.SearchHistory;
+import food2fork.com.findmyrecipe.utils.ServerUtility;
+import food2fork.com.findmyrecipe.utils.Utility;
 import food2fork.com.findmyrecipe.adapters.RecipeListAdapter;
 import food2fork.com.findmyrecipe.exceptions.AppErrorException;
 import food2fork.com.findmyrecipe.exceptions.NetworkErrorException;
 import food2fork.com.findmyrecipe.exceptions.ServerFaultException;
 import food2fork.com.findmyrecipe.json.JsonRecipeSearchResult;
 
+/**
+ * @author Alexei Ivanov
+ */
 public class SearchActivity extends BaseActivity {
 
     private ListView mListView;
     private String mQuery;
-    private SearchView mSearchView;
-//    private ActionBar mActionBar;
+    private MaterialSearchView mSearchView;
     private RecipeListAdapter mAdapter;
+    private SearchHistory mHistory;
+//    private SearchRecentSuggestions mSuggestions;
 
 
     @Override
@@ -42,24 +50,74 @@ public class SearchActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            toolbar.setElevation(0);
+            toolbar.setTitleTextColor(getResources().getColor(R.color.colorWhite, getTheme()));
+            setSupportActionBar(toolbar);
+        }
+
+        mHistory = new SearchHistory(this);
+        mSearchView = (MaterialSearchView) findViewById(R.id.search_view);
+        mSearchView.setVisibility(View.VISIBLE);
+        mSearchView.setVoiceSearch(false);
+        mSearchView.setCursorDrawable(R.drawable.color_cursor_white);
+        mSearchView.setEllipsize(true);
+        mSearchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                search(query, 1);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+//                mQuery = newText;
+                return false;
+            }
+        });
+
+        mSearchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
+            @Override
+            public void onSearchViewShown() {
+                mSearchView.setSuggestions(mHistory.getHistoryCache());
+                mSearchView.setQuery(mQuery, false);
+            }
+
+            @Override
+            public void onSearchViewClosed() {
+                //Do some magic
+            }
+        });
+
+//        FrameLayout container = (FrameLayout) findViewById(R.id.toolbar_container);
+//        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) container.getLayoutParams();
+//        params.topMargin = -params.topMargin;
+//        container.setLayoutParams(params);
+
         mListView = (ListView) findViewById(R.id.search_list);
+//        mSuggestions = new SearchRecentSuggestions(this,
+//                RecipeSuggestionProvider.AUTHORITY, RecipeSuggestionProvider.MODE);
+
         // Get the intent, verify the action and get the query
         handleIntent(getIntent());
-//        mActionBar = getSupportActionBar();
-//        if (mActionBar != null) {
-//            mActionBar.setElevation(0);
-//            mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-//            mActionBar.setCustomView(R.layout.action_bar);
-//
-//        }
     }
 
     @Override
     public void onBackPressed() {
-        if (mSearchView.hasFocus()){
-            mSearchView.clearFocus();
+        // override this if you wish to use pages - users should be able to use back button to go
+        // back to the previous page
+        if (mSearchView.isSearchOpen()) {
+            mSearchView.closeSearch();
+        } else if (mHistory.sizeOf() > 1) {
+            // if search history had more than one element, this will execute the previous search
+            mHistory.pop(); // pop the most recent
+            mQuery = mHistory.pop(); // pop the previous
+            // query should not be null or empty at this point, as long as the above condition remains unchanged
+            // the implementation of setQuery does its own null and emptiness checks
+            mSearchView.setQuery(mQuery, true);
         } else {
-            moveTaskToBack(true);
+            super.onBackPressed();
         }
     }
 
@@ -68,21 +126,15 @@ public class SearchActivity extends BaseActivity {
         // Inflate the options menu from XML
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_search, menu);
-
-        // Get the SearchView and set the searchable configuration
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        mSearchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
-        // Assumes current activity is the searchable activity
-        mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-//        mSearchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
-        mSearchView.setIconified(false);
+        MenuItem item = menu.findItem(R.id.action_search);
+        mSearchView.setMenuItem(item);
 
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_search) {
+        if (item.getItemId() == R.id.action_search) {
             mSearchView.requestFocus();
         }
         return super.onOptionsItemSelected(item);
@@ -100,9 +152,22 @@ public class SearchActivity extends BaseActivity {
         handleIntent(intent);
     }
 
+    @Override
+    public void onPause() {
+        mHistory.save();
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        mHistory.close(); // close the db
+        super.onDestroy();
+    }
+
     private void handleIntent(Intent intent) {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
+//            mSuggestions.saveRecentQuery(query, null);
             search(query, 1);
         }
     }
@@ -110,6 +175,7 @@ public class SearchActivity extends BaseActivity {
     private void search(String query, int page) {
         query = query.trim();
         mQuery = query;
+        mHistory.push(mQuery);
         try {
             query = URLEncoder.encode(query, ServerUtility.ENCODING);
         } catch (UnsupportedEncodingException e) {
