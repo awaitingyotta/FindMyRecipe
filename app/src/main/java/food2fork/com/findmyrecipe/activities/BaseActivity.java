@@ -6,11 +6,14 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.lang.reflect.Field;
@@ -27,6 +30,7 @@ import food2fork.com.findmyrecipe.utils.Utility;
 public class BaseActivity extends AppCompatActivity {
 
     private InputMethodManager mInputMethodManager;
+    private TextView mTitleTextView;
     private ActionBar mActionBar;
 
     @Override
@@ -51,6 +55,13 @@ public class BaseActivity extends AppCompatActivity {
             if (this.getClass() != SearchActivity.class) {
                 mActionBar.setHomeButtonEnabled(true);
                 mActionBar.setDisplayHomeAsUpEnabled(true);
+//                mActionBar.setDisplayShowCustomEnabled(true);
+//                mActionBar.setDisplayShowTitleEnabled(false);
+//                LayoutInflater inflater = LayoutInflater.from(this);
+//                View view = inflater.inflate(R.layout.action_bar, null);
+//                mTitleTextView = view.findViewById(R.id.title);
+//                mTitleTextView.setText(getTitle());
+//                mActionBar.setCustomView(R.layout.action_bar);
             }
         }
 

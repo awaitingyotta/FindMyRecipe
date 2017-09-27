@@ -1,21 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Must be last for right layering display -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/toolbar_container"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent" >
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:titleTextColor="@color/colorAccent"
-        android:background="@color/colorPrimary" />
-
-    <food2fork.com.findmyrecipe.MaterialSearchView
-        android:id="@+id/search_view"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        />
+        android:layout_centerVertical="true"
+        android:layout_marginStart="10dp"
+        android:ellipsize="marquee"
+        android:textSize="9pt"
+        android:maxLines="1"
+        android:text="" />
 
-</FrameLayout>
+</RelativeLayout>

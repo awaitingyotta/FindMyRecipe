@@ -26,7 +26,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:titleTextColor="@color/colorAccent"
+            android:titleTextColor="@color/colorWhite"
             android:background="@color/colorPrimary" />
 
         <food2fork.com.findmyrecipe.MaterialSearchView
