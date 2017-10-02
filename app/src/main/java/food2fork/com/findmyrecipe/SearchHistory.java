@@ -6,7 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
+import food2fork.com.findmyrecipe.adapters.SearchAdapter;
 import food2fork.com.findmyrecipe.utils.DictionaryOpenHelper;
 
 /**

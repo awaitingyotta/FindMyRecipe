@@ -1,6 +1,8 @@
 package food2fork.com.findmyrecipe;
 
 import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.widget.ImageView;
 import java.io.Serializable;
 
@@ -11,7 +13,7 @@ import food2fork.com.findmyrecipe.utils.Utility;
 /**
  * @author Alexei Ivanov
  */
-public class Recipe implements Serializable {
+public class Recipe implements Parcelable, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -19,6 +21,31 @@ public class Recipe implements Serializable {
     private String[] ingredients;
     private double socialRank;
     private int page;
+
+    public static final Creator<Recipe> CREATOR = new Creator<Recipe>() {
+        @Override
+        public Recipe createFromParcel(Parcel in) {
+            return new Recipe(in);
+        }
+
+        @Override
+        public Recipe[] newArray(int size) {
+            return new Recipe[size];
+        }
+    };
+
+    protected Recipe(Parcel in) {
+        ingredients = in.createStringArray();
+        publisherUrl = in.readString();
+        socialRank = in.readDouble();
+        sourceUrl = in.readString();
+        publisher = in.readString();
+        recipeId = in.readString();
+        imageUrl = in.readString();
+        f2fUrl = in.readString();
+        title = in.readString();
+        page = in.readInt();
+    }
 
     public Recipe(String publisher, String f2fUrl, String publisherUrl, String title,
                   String sourceUrl, String recipeId, String imageUrl, double socialRank, int page){
@@ -99,12 +126,14 @@ public class Recipe implements Serializable {
                 @Override
                 public void onSuccess(Bitmap image) {
                     Utility.addBitmapToMemoryCache(recipeId, image);
+                    adapter.increaseLoadedImagesCount();
                     adapter.notifyDataSetChanged();
                 }
 
                 @Override
                 public void onFailure() {
-                    // use default image
+                    adapter.notifyDataSetChanged();
+                    adapter.increaseLoadedImagesCount();
                 }
             }, imageUrl);
         }
@@ -133,5 +162,24 @@ public class Recipe implements Serializable {
                 }
             }, imageUrl);
         }
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeStringArray(ingredients);
+        parcel.writeString(publisherUrl);
+        parcel.writeDouble(socialRank);
+        parcel.writeString(sourceUrl);
+        parcel.writeString(publisher);
+        parcel.writeString(recipeId);
+        parcel.writeString(imageUrl);
+        parcel.writeString(f2fUrl);
+        parcel.writeString(title);
+        parcel.writeInt(page);
     }
 }

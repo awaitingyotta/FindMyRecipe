@@ -1,5 +1,6 @@
 package food2fork.com.findmyrecipe.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,8 +12,11 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import food2fork.com.findmyrecipe.OnImagesLoadedListener;
 import food2fork.com.findmyrecipe.R;
 import food2fork.com.findmyrecipe.Recipe;
+import food2fork.com.findmyrecipe.SearchState;
+import food2fork.com.findmyrecipe.activities.SearchActivity;
 import food2fork.com.findmyrecipe.utils.Utility;
 
 /**
@@ -20,13 +24,18 @@ import food2fork.com.findmyrecipe.utils.Utility;
  */
 public class RecipeListAdapter extends BaseAdapter {
 
-
     private List<Recipe> recipes;
-    private LayoutInflater mInflater;
+    private LayoutInflater inflater;
+    private int loadedImagesCount;
+    private OnImagesLoadedListener listener;
+    private SearchActivity activity;
+    private SearchState state;
 
     public RecipeListAdapter(Context context, List<Recipe> results) {
         recipes = results;
-        mInflater = LayoutInflater.from(context);
+        inflater = LayoutInflater.from(context);
+        activity = (SearchActivity) context;
+        state = new SearchState(activity.getPage(), activity.getQuery(), this, null);
     }
 
     public int getCount() {
@@ -46,7 +55,7 @@ public class RecipeListAdapter extends BaseAdapter {
         ViewHolder holder;
         if (convertView == null) {
             holder = new ViewHolder();
-            convertView = mInflater.inflate(R.layout.recipe_list_row, null);
+            convertView = inflater.inflate(R.layout.recipe_list_row, null);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
@@ -63,12 +72,32 @@ public class RecipeListAdapter extends BaseAdapter {
             holder.miniature.setImageResource(R.drawable.no_image);
         }
 
+
+
+        if (listener != null && loadedImagesCount == getCount()) {
+            state.setCache(Utility.getBitmapMemCache());
+            listener.imagesLoaded(state); // once the images have been downloaded completely, we pass the reference
+            loadedImagesCount = 0; // oh yeah
+        }
+
 //        for (View view : holder.getViews()) {
 //            if(view.getClass() == TextView.class) ((TextView)view).setTypeface(Utility.getMainFont(parent.getContext()));
 //        }
 
 
         return convertView;
+    }
+
+    public ArrayList<Recipe> getRecipes() {
+        return new ArrayList<>(recipes);
+    }
+
+    public void increaseLoadedImagesCount() {
+        loadedImagesCount++;
+    }
+
+    public void setOnImagesLoadedListener(OnImagesLoadedListener listener) {
+        this.listener = listener;
     }
 
     static class ViewHolder  {

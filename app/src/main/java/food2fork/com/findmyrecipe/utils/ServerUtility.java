@@ -11,12 +11,16 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -38,12 +42,27 @@ public class ServerUtility {
 
     private static final int CONNECTION_TIMEOUT = 5000;
 
+    //b549c4c96152e677eb90de4604ca61a2
+    public static final String ENCODING = "UTF8";
+    public static final String METHOD_GET = "GET";
+
+    private static final String EMPTY_STRING = "";
     private static final String BASE_SEARCH_URL = "http://food2fork.com/api/search?key=b549c4c96152e677eb90de4604ca61a2";
     private static final String BASE_RECIPE_URL = "http://food2fork.com/api/get?key=b549c4c96152e677eb90de4604ca61a2";
     private static final String CONTENT_TYPE = "application/json; charset=utf8";
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
-    public static final String ENCODING = "UTF8";
-    public static final String METHOD_GET = "GET";
+    private static final String MALFORMED_URL_MESSAGE = "Wrong base URL or URI";
+    private static final String WRONG_HTTP_METHOD_MESSAGE = "Wrong HTTP-method";
+    private static final String HTTP_FORBIDDEN_MESSAGE = "403 forbidden";
+    private static final String UNKNOWN_ERROR_MESSAGE = "Unknow application error";
+    private static final String INVALID_URL_MESSAGE = "Invalid URL";
+
+    private static final String UNKNOWN_JSON_PROPERTY = "Uknown property";
+    private static final String JSON_PARSE_EXCEPTION = "JsonParseException";
+    private static final String JSON_MAPPING_EXCEPTION = "JsonMappingException";
+    private static final String UNKNOWN_JSON_ERROR = "Uknown error";
+
+
 
     public static JsonRecipeSearchResult searchForRecipes(String query)
             throws ServerFaultException, AppErrorException, NetworkErrorException, MalformedURLException {
@@ -51,9 +70,9 @@ public class ServerUtility {
         try {
             url = new URL(BASE_SEARCH_URL + query);
         } catch (MalformedURLException e) {
-            throw new MalformedURLException("Wrong base URL or URI");
+            throw new MalformedURLException(MALFORMED_URL_MESSAGE);
         }
-        return (JsonRecipeSearchResult) getJsonFromServer(ServerUtility.METHOD_GET, url, "", JsonRecipeSearchResult.class);
+        return (JsonRecipeSearchResult) getJsonFromServer(ServerUtility.METHOD_GET, url, EMPTY_STRING, JsonRecipeSearchResult.class);
     }
 
     public static JsonRecipeDetails getRecipe(String query)
@@ -62,16 +81,19 @@ public class ServerUtility {
         try {
             url = new URL(BASE_RECIPE_URL + query);
         } catch (MalformedURLException e) {
-            throw new MalformedURLException("Wrong base URL or URI");
+            throw new MalformedURLException(MALFORMED_URL_MESSAGE);
         }
 
-        return (JsonRecipeDetails) getJsonFromServer(ServerUtility.METHOD_GET, url, "", JsonRecipeDetails.class);
+        return (JsonRecipeDetails) getJsonFromServer(ServerUtility.METHOD_GET, url, EMPTY_STRING, JsonRecipeDetails.class);
     }
 
     private static String callServer(String method, URL url, String body)
             throws IOException, AppErrorException, ServerFaultException {
 
 
+        String input;
+        BufferedReader br;
+        StringBuilder responseBody;
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
         connection.setRequestMethod(method);
         connection.setRequestProperty(CONTENT_TYPE_HEADER, CONTENT_TYPE);
@@ -80,7 +102,7 @@ public class ServerUtility {
 
         if (body != null && !body.isEmpty()) {
             if (method.equals(METHOD_GET)) {
-                throw new AppErrorException("Wrong HTTP-method");
+                throw new AppErrorException(WRONG_HTTP_METHOD_MESSAGE);
             }
 
             connection.setDoOutput(true);
@@ -95,36 +117,21 @@ public class ServerUtility {
 
         connection.connect();
 
-//        Utility.setConnectionTest(new TestSecuredConnection(connection));
-//        if (Utility.getConnectionTest().getException() != null) {
-//            if (Utility.getConnectionTest().getException().getClass() == SSLPeerUnverifiedException.class) {
-//                throw new AppErrorException("Uverifisert serverport. Vennligst ta kontakt med kundesenteret");
-//            }
-//            else if (Utility.getConnectionTest().getException().getClass() == IllegalStateException.class) {
-//                throw new AppErrorException("Det har oppstått en feil");
-//            }
-//        }
-//        else if (!Utility.getConnectionTest().isValid()) {
-//            connection.disconnect();
-//            throw new AppErrorException("SSL-sertifikatet er ugyldig. Vennligst ta kontakt med kundesenteret");
-//        }
-
         switch (connection.getResponseCode()) {
             case HttpURLConnection.HTTP_OK:
                 break;
             case HttpURLConnection.HTTP_FORBIDDEN:
-                throw new AppErrorException("403 forbidden");
+                throw new AppErrorException(HTTP_FORBIDDEN_MESSAGE);
             case HttpURLConnection.HTTP_NOT_FOUND:
                 throw new ServerFaultException();
             case HttpURLConnection.HTTP_INTERNAL_ERROR:
                 throw new ServerFaultException();
             default:
-                throw new AppErrorException("Unknow application error");
+                throw new AppErrorException(UNKNOWN_ERROR_MESSAGE);
         }
 
-        BufferedReader br = new BufferedReader( new InputStreamReader(connection.getInputStream()) );
-        String input;
-        StringBuilder responseBody = new StringBuilder("");
+        br = new BufferedReader( new InputStreamReader(connection.getInputStream()) );
+        responseBody = new StringBuilder(EMPTY_STRING);
         while ((input = br.readLine()) != null){
             responseBody.append(input);
         }
@@ -142,7 +149,7 @@ public class ServerUtility {
         try {
             responseBody = callServer(method, url, requestBody);
         } catch (MalformedURLException e) {
-            throw new AppErrorException("Invalid URL");
+            throw new AppErrorException(INVALID_URL_MESSAGE);
         } catch (IOException e) {
             throw new NetworkErrorException();
         }
@@ -155,18 +162,22 @@ public class ServerUtility {
         try {
             jsonObject = BaseJson.stringToJsonObject(responseBody, jsonClass);
         } catch (UnrecognizedPropertyException e) {
-            System.out.println(e.getUnrecognizedPropertyName());
+//            System.out.println(e.getUnrecognizedPropertyName()); for debugging only
             e.printStackTrace();
-            throw new AppErrorException("Uknown property");
+            Log.e(TAG, "UnrecognizedPropertyException while reading JSON", e);
+            throw new AppErrorException(UNKNOWN_JSON_PROPERTY);
         } catch (JsonParseException e) {
             e.printStackTrace();
-            throw new AppErrorException("JsonParseException");
+            Log.e(TAG, "JsonParseException while reading JSON", e);
+            throw new AppErrorException(JSON_PARSE_EXCEPTION);
         } catch (JsonMappingException e) {
             e.printStackTrace();
-            throw new AppErrorException("JsonMappingException");
+            Log.e(TAG, "JsonMappingException while reading JSON", e);
+            throw new AppErrorException(JSON_MAPPING_EXCEPTION);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new AppErrorException("Uknown error");
+            Log.e(TAG, "IOException while reading JSON", e);
+            throw new AppErrorException(UNKNOWN_JSON_ERROR);
         }
 //        System.out.println("jsonObject: " + jsonObject.jsonToString());// for debug purposes only! remove after tests complete
         return jsonObject;
@@ -181,18 +192,34 @@ public class ServerUtility {
 
 
     private static Bitmap getImageFromUrlSource(String urlString) {
+        URL url;
         Bitmap bm = null;
+        InputStream is = null;
+        URLConnection connection;
+        BufferedInputStream bis = null;
+        ByteArrayOutputStream bos = null;
+
         try {
-            URL url = new URL(urlString);
-            URLConnection connection = url.openConnection();
+            url = new URL(urlString);
+            connection = url.openConnection();
+            connection.setConnectTimeout(CONNECTION_TIMEOUT);
+            connection.setReadTimeout(CONNECTION_TIMEOUT);
             connection.connect();
-            InputStream is = connection.getInputStream();
-            BufferedInputStream bis = new BufferedInputStream(is);
+
+            is = connection.getInputStream();
+            bis = new BufferedInputStream(is);
+            bos = new ByteArrayOutputStream();
             bm = BitmapFactory.decodeStream(bis);
-            bis.close();
-            is.close();
+        } catch (SocketTimeoutException e) {
+            e.printStackTrace();
+            Log.e(TAG, "SocketTimeoutException while getting bitmap", e);
         } catch (IOException e) {
+            e.printStackTrace();
             Log.e(TAG, "Error getting bitmap", e);
+        } finally {
+            Utility.closeSilently(bis);
+            Utility.closeSilently(bos);
+            Utility.closeSilently(is);
         }
         return bm;
     }
@@ -226,6 +253,8 @@ public class ServerUtility {
         protected void onPostExecute(Bitmap image) {
             if (image != null) {
                 callback.onSuccess(image);
+            } else {
+                callback.onFailure();
             }
         }
     }

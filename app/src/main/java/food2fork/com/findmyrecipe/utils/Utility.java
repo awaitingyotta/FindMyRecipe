@@ -5,10 +5,13 @@ import android.os.Build;
 import android.text.Html;
 import android.util.LruCache;
 
+import java.io.Closeable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import food2fork.com.findmyrecipe.Recipe;
+import food2fork.com.findmyrecipe.SearchResult;
 import food2fork.com.findmyrecipe.json.JsonRecipe;
 
 /**
@@ -23,7 +26,8 @@ public class Utility {
     public static final String PAGE_PARAM ="&page=";
     public static final String TITLE = "title";
 
-    private static LruCache<String, Bitmap> mMemoryCache;
+    private static LruCache<String, Bitmap> memoryCache;
+    private static LinkedHashMap<String, SearchResult> searchResultCache; // searches returned (<search term, adapter>)
     private static final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
     private static final int cacheSize = maxMemory / 8; // Using 1/8th of the available memory for this memory cache as recommended.
 
@@ -54,23 +58,23 @@ public class Utility {
     public static void addBitmapToMemoryCache(String key, Bitmap bitmap) {
         initBitmapCache();
         if (getBitmapFromMemCache(key) == null) {
-            mMemoryCache.put(key, bitmap);
+            memoryCache.put(key, bitmap);
         }
     }
 
     public static Bitmap getBitmapFromMemCache(String key) {
-        // do not init here, if mMemoryCache is null here, mMemoryCache.get(key) will yield nothing
-        return mMemoryCache == null ? null : mMemoryCache.get(key);
+        // do not init here, if memoryCache is null here, memoryCache.get(key) will yield nothing
+        return memoryCache == null ? null : memoryCache.get(key);
     }
 
     public static void clearBitmapCache() {
         // use with caution - should only be used before each new search
-        if (mMemoryCache != null) mMemoryCache.evictAll();
+        if (memoryCache != null) memoryCache.evictAll();
     }
 
     private static void initBitmapCache() {
-        if (mMemoryCache == null) {
-            mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+        if (memoryCache == null) {
+            memoryCache = new LruCache<String, Bitmap>(cacheSize) {
                 @Override
                 protected int sizeOf(String key, Bitmap bitmap) {
                     // The cache size will be measured in kilobytes rather than number of items.
@@ -88,5 +92,55 @@ public class Utility {
         }
     }
 
+    public static void closeSilently(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (Exception ignored) {
+
+            }
+        }
+    }
+
+    public static LruCache<String, Bitmap> getBitmapMemCache() {
+        return memoryCache;
+    }
+
+    public static boolean resultHistoryContainsResult(String hashCode) {
+        return searchResultCache != null && searchResultCache.containsKey(hashCode);
+    }
+
+    public static void addSearchResult(SearchResult result) {
+        if (searchResultCache == null) {
+            initSearchResultCache();
+        }
+        searchResultCache.put(result.getHashCode(), result);
+    }
+
+    public static SearchResult getSearchResult(String hashCode) {
+        return searchResultCache == null ? null : searchResultCache.get(hashCode);
+    }
+
+    private static void initSearchResultCache() {
+        searchResultCache = new LinkedHashMap<>();
+    }
+
+    public static boolean removeSearchResult(String hashCode) {
+        return searchResultCache != null && searchResultCache.remove(hashCode) != null;
+    }
+
+    public static void setBitmapMemCache(LruCache<String,Bitmap> bitmapMemCache) {
+        memoryCache = bitmapMemCache;
+    }
+
+    public static void resetBitmapCache() {
+        memoryCache = null;
+        initBitmapCache();
+    }
+
+    public static String getHashCode(String query, int page) {
+        if (query == null || query.isEmpty()) return "";
+        return String.valueOf((query+page).hashCode());
+    }
 
 }

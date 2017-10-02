@@ -9,6 +9,7 @@ import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.speech.RecognizerIntent;
@@ -477,11 +478,12 @@ public class MaterialSearchView extends FrameLayout implements Filter.FilterList
      *
      * @param menuItem
      */
-    public void setMenuItem(MenuItem menuItem) {
+    public void setMenuItem(MenuItem menuItem, final MenuItemClickListener callback) {
         this.mMenuItem = menuItem;
         mMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+                callback.onClick();
                 showSearch();
                 return true;
             }
@@ -507,14 +509,14 @@ public class MaterialSearchView extends FrameLayout implements Filter.FilterList
     }
 
     /**
-     * Open Search View. This will animate the showing of the view.
+     * Open SearchState View. This will animate the showing of the view.
      */
     public void showSearch() {
         showSearch(true);
     }
 
     /**
-     * Open Search View. If animate is true, Animate the showing of the view.
+     * Open SearchState View. If animate is true, Animate the showing of the view.
      *
      * @param animate true for animate
      */
@@ -524,7 +526,7 @@ public class MaterialSearchView extends FrameLayout implements Filter.FilterList
         }
 
         //Request Focus
-        mSearchSrcTextView.setText(null);
+//        mSearchSrcTextView.setText(null);
         mSearchSrcTextView.requestFocus();
 
         if (animate) {
@@ -599,7 +601,7 @@ public class MaterialSearchView extends FrameLayout implements Filter.FilterList
     }
 
     /**
-     * Set this listener to listen to Search View open and close events
+     * Set this listener to listen to SearchState View open and close events
      *
      * @param listener
      */
