@@ -1,4 +1,6 @@
 # FindMyRecipe
+NOTE: This is a WOIP, so it has a lot of bugs, and some features will soon be reconfigured.
+
 Find recipes online
 Searhc for recipes using food2fork api. Each recipe can be viewed in detail, with links to food2fork page and the original recipe.
 The food2fork license included permits 500 fetches per day. Please use your own license if you intend to use this application. 
